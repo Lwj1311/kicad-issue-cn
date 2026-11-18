@@ -33,29 +33,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify Aliyun credentials
+      - name: Login to Aliyun
         env:
-          ACR_USER: liuweijian@1613452717930870.onaliyun.com
+          ACR_HOST: crpi-uk7yo7mxz74rkbcy.cn-shanghai.personal.cr.aliyuncs.com
+          ACR_USER: liuweijian@1613452717930870
           ACR_PASS: ${{ secrets.ALIYUNCS_DOCKER_PASSWORD_LWJ }}
         run: |
-          echo "username=$ACR_USER"
-          echo "password_chars=$(printf '%s' "$ACR_PASS" | wc -c)"
-          code=$(curl -s -o /dev/null -w '%{http_code}' -u "$ACR_USER:$ACR_PASS" "https://dockerauth.cn-hangzhou.aliyuncs.com/auth?service=registry.aliyuncs.com:cn-shanghai:26842&scope=repository:lwj-kicad/kicad-issue-cn:pull,push")
-          echo "token_endpoint_status=$code"
-
-      - name: Login to Aliyun
-        uses: docker/login-action@v3
-        with:
-          registry: registry.cn-shanghai.aliyuncs.com
-          username: liuweijian@1613452717930870.onaliyun.com
-          password: ${{ secrets.ALIYUNCS_DOCKER_PASSWORD_LWJ }}
+          mkdir -p ~/.docker
+          [ -f ~/.docker/config.json ] || echo '{"auths":{}}' > ~/.docker/config.json
+          auth=$(printf '%s:%s' "$ACR_USER" "$ACR_PASS" | base64 -w0)
+          jq --arg h "$ACR_HOST" --arg a "$auth" '.auths[$h] = {"auth": $a}' ~/.docker/config.json > /tmp/config.json
+          mv /tmp/config.json ~/.docker/config.json
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            registry.cn-shanghai.aliyuncs.com/lwj-kicad/kicad-issue-cn
+            crpi-uk7yo7mxz74rkbcy.cn-shanghai.personal.cr.aliyuncs.com/lwj-kicad/kicad-issue-cn
             ghcr.io/${{ github.repository }}
           tags: |
             ${{ steps.latest-release.outputs.tag }}
