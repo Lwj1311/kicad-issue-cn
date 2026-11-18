@@ -33,6 +33,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verify Aliyun credentials
+        env:
+          ACR_USER: liuweijian@1613452717930870.onaliyun.com
+          ACR_PASS: ${{ secrets.ALIYUNCS_DOCKER_PASSWORD_LWJ }}
+        run: |
+          echo "username=$ACR_USER"
+          echo "password_chars=$(printf '%s' "$ACR_PASS" | wc -c)"
+          code=$(curl -s -o /dev/null -w '%{http_code}' -u "$ACR_USER:$ACR_PASS" "https://dockerauth.cn-hangzhou.aliyuncs.com/auth?service=registry.aliyuncs.com:cn-shanghai:26842&scope=repository:lwj-kicad/kicad-issue-cn:pull,push")
+          echo "token_endpoint_status=$code"
+
       - name: Login to Aliyun
         uses: docker/login-action@v3
         with:
