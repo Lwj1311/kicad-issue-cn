@@ -37,16 +37,16 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: registry.cn-shanghai.aliyuncs.com
-          username: Liangtie
-          password: ${{ secrets.ALIYUNCS_DOCKER_PASSWORD }}
+          username: liuweijian@1613452717930870.onaliyun.com
+          password: ${{ secrets.ALIYUNCS_DOCKER_PASSWORD_LWJ }}
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            registry.cn-shanghai.aliyuncs.com/kicad/kicad-issue-cn
-            ghcr.io/Huaqiu-Electronics/kicad-issue-cn
+            registry.cn-shanghai.aliyuncs.com/lwj-kicad/kicad-issue-cn
+            ghcr.io/${{ github.repository }}
           tags: |
             ${{ steps.latest-release.outputs.tag }}
             latest
